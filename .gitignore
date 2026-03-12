@@ -1,0 +1,14 @@
+*.pdb
+.DS_Store/
+.env
+.venv
+logs/
+results/
+annotations/
+AF3/
+__pychache__/
+*.pyc
+*.pdb
+*.cif
+*.mmcif
+.ipynb_checkpoints/
