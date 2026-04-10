@@ -3,7 +3,16 @@ Pipeline for detecting protein-protein interfaces using AlfaFold3
 
 ## Installation
 
-### Option 1: Conda (recommended for bioinformatics)
+### Download from GitHub
+
+Download or clone the repository from GitHub:
+
+```bash
+git clone https://github.com/armstrong-lab/af3-ppi.git
+cd af3-ppi
+```
+
+### Set up environment (recommended)
 
 Create and activate a conda environment:
 
@@ -12,54 +21,15 @@ conda env create -f environment.yml
 conda activate af3ppi
 ```
 
-Install the local `af3ppi` package into the activated environment:
-
-```bash
-pip install -e .
-```
-
-### Option 2: Virtual environment + pip
-
-Create a virtual environment and install dependencies:
-
-```bash
-python3 -m venv af3ppi_env
-source af3ppi_env/bin/activate  # On Windows: af3ppi_env\Scripts\activate
-python3 -m pip install -r requirements.txt
-```
-
-### Option 3: Pip only (if you must)
-
-If you have pip available and want to install globally:
-
-```bash
-python3 -m pip install --user -r requirements.txt
-```
-
-### Option 4: Install from GitHub
-
-For the latest version directly from GitHub:
-
-```bash
-# Install directly from GitHub (creates af3ppi command globally)
-pip install git+https://github.com/armstrong-lab/af3-ppi.git
-
-# Or clone and install locally
-git clone https://github.com/armstrong-lab/af3-ppi.git
-cd af3-ppi
-pip install -e .  # Installs af3ppi command
-```
-
-
-Or if you have permission to modify the system Python:
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
 ## af3-ppi CLI usage
 
-After installation, the package provides a `af3ppi` command. All commands below assume you're in a directory with access to your config files and data.
+After setting up the environment, run the tool from the repository directory:
+
+```bash
+python -m af3ppi --help
+```
+
+All commands below assume you're in the repository directory with the environment activated.
 
 Generate AF3 JSON AF3_server_inputs:
 
