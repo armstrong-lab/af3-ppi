@@ -104,3 +104,16 @@ af3ppi heatmap-multi --config config/run_config.yaml --folder path/to/AF3_server
 *Creates a single image file with all heatmaps arranged vertically (one on top of the other)*
 
 
+## Input types
+
+On the YAML config file, there are five ways to specify the amino acid sequence in the bait or target section:
+
+1 - "whole_protein" - Official gene name. The sequence will be parsed from the FASTA file specified on the "fasta_database_file" field. A default Uniprot library in included.
+
+2 - "segments" - A segment from between the specified start and end of protein defined by the official gene name will be retrived.
+
+3 - "fasta" - Direct input of the sequence
+
+4 - "txt_file" - A text file with the official gene names, one per line, will be read.
+
+5 - "overlapping_windows" - User define overlapping segments of specified start, end, size and overlap.
