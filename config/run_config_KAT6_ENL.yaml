@@ -1,0 +1,25 @@
+########################
+# RUN CONFIGURATION #
+########################
+
+run_name: ENL_KAT6
+
+bait:
+  whole_proteins:
+    - name: MLLT1
+
+
+target:
+  whole_proteins:
+    - name: KAT6A
+    - name: BRPF1
+    - name: ING5
+    - name: MEAF6 
+
+
+
+########################
+# GLOBAL CONFIGURATION #
+########################
+
+fasta_database_file : UP000005640_9606.fasta

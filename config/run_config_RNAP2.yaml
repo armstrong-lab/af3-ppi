@@ -1,0 +1,60 @@
+########################
+# RUN CONFIGURATION #
+########################
+
+run_name: RNAP2
+
+bait:
+  segments:
+    - protein: KMT2A
+      name: MDB_IBM
+      start: 1
+      end: 160
+
+    - protein: KMT2A
+      name: AT_hooks
+      start: 161
+      end: 309
+
+    - protein: KMT2A
+      name: IDR1
+      start: 310
+      end: 510
+
+    - protein: KMT2A
+      name: IDR2
+      start: 460
+      end: 660
+
+    - protein: KMT2A
+      name: IDR3
+      start: 610
+      end: 810
+    
+    - protein: KMT2A
+      name: IDR4
+      start: 760
+      end: 1007
+
+    - protein: KMT2A
+      name: THD2
+      start: 1008
+      end: 1144
+    
+    - protein: KMT2A
+      name: CXXC
+      start: 1145
+      end: 1395
+
+  #txt_file: KAT7_targets.txt
+
+target:
+  txt_file: RNAPolII_targets.txt
+
+
+
+########################
+# GLOBAL CONFIGURATION #
+########################
+
+fasta_database_file : UP000005640_9606.fasta
