@@ -5,12 +5,9 @@ Pipeline for detecting protein-protein interfaces using AlfaFold3
 
 ### Download from GitHub
 
-Download or clone the repository from GitHub:
+Download the repository from GitHub:
 
-```bash
-git clone https://github.com/armstrong-lab/af3-ppi.git
-cd af3-ppi
-```
+
 
 ### Set up environment (recommended)
 
@@ -19,6 +16,14 @@ Create and activate a conda environment:
 ```bash
 conda env create -f environment.yml
 conda activate af3ppi
+```
+
+### Alternative: Install dependencies with pip
+
+If you prefer not to use conda, install dependencies with pip:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## af3-ppi CLI usage
