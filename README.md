@@ -67,7 +67,7 @@ The config file supports five sequence input styles:
 - `overlapping_windows`: split a protein sequence into multiple overlapping windows. This is useful for scanning large proteins or disordered regions in smaller chunks. For overlapping windows you may also use `start` and `end` to indicate the protein termini when defining the window boundaries.
 
 
-Parse AF3 server outputs and write a summary TSV:
+## Parse AF3 server outputs and write a summary TSV:
 
 ```bash
 af3ppi parse-outputs --folder path/to/AF3_server_RNAPII_outputs --out-file results/AF3_server_RNAPII_outputs.txt
