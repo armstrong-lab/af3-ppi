@@ -50,7 +50,6 @@ cd af3ppi
 pip install -e .  # Installs af3ppi command
 ```
 
-**Note:** Replace `yourusername` with your actual GitHub username in the URLs above. After installation, you'll have the `af3ppi` command available globally.
 
 Or if you have permission to modify the system Python:
 
