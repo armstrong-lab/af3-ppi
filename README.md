@@ -57,7 +57,7 @@ Or if you have permission to modify the system Python:
 python3 -m pip install -r requirements.txt
 ```
 
-## AF3 CLI usage
+## af3-ppi CLI usage
 
 After installation, the package provides a `af3ppi` command. All commands below assume you're in a directory with access to your config files and data.
 
