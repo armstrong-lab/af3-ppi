@@ -19,7 +19,7 @@ def build_parser() -> argparse.ArgumentParser:
     generate_parser.add_argument(
         "--config",
         required=True,
-        help="Path to the run configuration YAML file, relative to repo root or absolute.",
+        help="Path to the run configuration YAML file, relative to current directory or absolute.",
     )
     generate_parser.add_argument(
         "--mode",
@@ -37,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     generate_parser.add_argument(
         "--repo-root",
-        help="Optional repository root directory. Defaults to the package root.",
+        help="Optional repository root directory. Defaults to the current working directory.",
     )
 
     parse_parser = subparsers.add_parser(
@@ -55,7 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parse_parser.add_argument(
         "--repo-root",
-        help="Optional repository root directory. Defaults to the package root.",
+        help="Optional repository root directory. Defaults to the current working directory.",
     )
 
     heatmap_parser = subparsers.add_parser(
@@ -77,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     heatmap_parser.add_argument(
         "--repo-root",
-        help="Optional repository root directory. Defaults to the package root.",
+        help="Optional repository root directory. Defaults to the current working directory.",
     )
     heatmap_parser.add_argument(
         "--show",
@@ -105,7 +105,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     heatmap_multi_parser.add_argument(
         "--repo-root",
-        help="Optional repository root directory. Defaults to the package root.",
+        help="Optional repository root directory. Defaults to the current working directory.",
     )
     heatmap_multi_parser.add_argument(
         "--show",
@@ -119,6 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    root = Path(args.repo_root) if args.repo_root else Path.cwd()
 
     if args.command == "generate":
         output_path = generate_af3_inputs(
@@ -126,7 +127,7 @@ def main() -> int:
             mode=args.mode,
             target_name=args.target_name,
             output_path=args.output,
-            root=args.repo_root,
+            root=root,
         )
         print(f"Wrote AF3_server_inputs: {Path(output_path).resolve()}")
         return 0
@@ -135,7 +136,7 @@ def main() -> int:
         output_path = read_AF3_server_outputs(
             folder_name=args.folder,
             out_fname=args.out_file,
-            root=args.repo_root,
+            root=root,
         )
         print(f"Wrote summary TSV: {Path(output_path).resolve()}")
         return 0
@@ -143,13 +144,13 @@ def main() -> int:
     if args.command == "heatmap":
         from .af3_input import parse_config, parse_fasta
 
-        run_config = parse_config(args.config, root=args.repo_root)
-        prot_dict = parse_fasta(run_config, root=args.repo_root)
+        run_config = parse_config(args.config, root=root)
+        prot_dict = parse_fasta(run_config, root=root)
         output_path = make_output_heatmap(
             prot_dict=prot_dict,
             run_config=run_config,
             output_folder_name=args.folder,
-            root=args.repo_root,
+            root=root,
             save_path=args.out_file,
             show=args.show,
         )
@@ -159,14 +160,14 @@ def main() -> int:
     if args.command == "heatmap-multi":
         from .af3_input import parse_config, parse_fasta
 
-        run_config = parse_config(args.config, root=args.repo_root)
-        prot_dict = parse_fasta(run_config, root=args.repo_root)
+        run_config = parse_config(args.config, root=root)
+        prot_dict = parse_fasta(run_config, root=root)
         output_path = make_output_heatmap_multi(
             prot_dict=prot_dict,
             run_config=run_config,
             output_folder_name=args.folder,
-            root=args.repo_root,
-            save_path=getattr(args, 'out_file', None),
+            root=root,
+            save_path=getattr(args, "out_file", None),
             show=args.show,
         )
         print(f"Wrote combined heatmap: {Path(output_path).resolve()}")
