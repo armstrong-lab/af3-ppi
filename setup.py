@@ -25,18 +25,18 @@ def read_requirements():
 setup(
     name="af3ppi",
     version="0.1.0",
-    author="Pablo Cordero",
-    author_email="",  # Add your email if desired
+    author="Pablo Riera Freire",
+    author_email="pablor_freire@dfci.harvard.edu",  # Add your email if desired
     description="CLI tool for generating AlphaFold3 server JSON inputs and analyzing outputs",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/af3ppi",  # Replace with your actual GitHub URL
+    url="https://github.com/armstrong-lab/af3-ppi.git",  # Replace with your actual GitHub URL
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",  # Update if using different license
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",

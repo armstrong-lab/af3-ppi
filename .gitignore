@@ -10,6 +10,8 @@ AF3_server_inputs/
 AF3_server_outputs/
 manifests/
 af3ppi.egg-info/
+config/*
+!config/example*
 __pychache__/
 *.pyc
 *.pdb

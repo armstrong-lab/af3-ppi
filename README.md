@@ -82,18 +82,7 @@ af3ppi generate --config config/run_config.yaml --mode complex
 
 Complex mode runs one analysis with all baits and targets combined into a single AF3 job.
 
-```mermaid
-graph TD
-    A[Binary Mode] --> B[Bait1 + Target1]
-    A --> C[Bait1 + Target2]
-    A --> D[Bait2 + Target1]
-    A --> E[Bait2 + Target2]
 
-    F[Multi Mode] --> G[Bait1 + All Targets]
-    F --> H[Bait2 + All Targets]
-
-    I[Complex Mode] --> J[All Baits + All Targets]
-```
 
 Parse AF3 server outputs and write a summary TSV:
 
