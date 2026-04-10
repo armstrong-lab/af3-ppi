@@ -61,10 +61,10 @@ Complex mode runs one analysis with all baits and targets combined into a single
 The config file supports five sequence input styles:
 
 - `whole_proteins`: specify full-length protein names and load the complete protein sequences from the FASTA database.
-- `segments`: define protein segments with `protein`, `name`, `start`, and `end`. Only the requested subsequence is used.
+- `segments`: define protein segments with `protein`, `name`, `start`, and `end`. Only the requested subsequence is used. You can also use the literal values `start` or `end` to mean the first or last amino acid of the full protein sequence instead of looking up the exact residue number.
 - `fasta`: provide custom sequences directly in the YAML file using `name` and `sequence` fields.
 - `txt_file`: load a list of sequence names from a text file, where each line contains a protein name.
-- `overlapping_windows`: split a protein sequence into multiple overlapping windows. This is useful for scanning large proteins or disordered regions in smaller chunks.
+- `overlapping_windows`: split a protein sequence into multiple overlapping windows. This is useful for scanning large proteins or disordered regions in smaller chunks. For overlapping windows you may also use `start` and `end` to indicate the protein termini when defining the window boundaries.
 
 
 Parse AF3 server outputs and write a summary TSV:
