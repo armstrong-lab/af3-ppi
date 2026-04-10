@@ -42,10 +42,10 @@ For the latest version directly from GitHub:
 
 ```bash
 # Install directly from GitHub (creates af3ppi command globally)
-pip install git+https://github.com/yourusername/af3ppi.git
+pip install git+https://github.com/armstrong-lab/af3ppi.git
 
 # Or clone and install locally
-git clone https://github.com/yourusername/af3ppi.git
+git clone https://github.com/armstrong-lab/af3ppi.git
 cd af3ppi
 pip install -e .  # Installs af3ppi command
 ```
