@@ -7,30 +7,16 @@ run_name: EXAMPLE_RUN
 
 bait:
   segments:
-    - protein: KMT2A
-      name: MDB_IBM
-      start: 1
-      end: 160
+    - protein: NUP214
+      name: NUP214_CTERM
+      start: 1839
+      end: end
 
-    - protein: KMT2A
-      name: AT_hooks
-      start: 161
-      end: 309
+    #- protein: <OTHER GENE NAME>
+    #  name: <USER DEFINED FRAGMENT NAME>
+    #  start: <START POSITION>
+    #  end: <END POSITION>
 
-    - protein: KMT2A
-      name: IDR1
-      start: 310
-      end: 510
-
-    - protein: KMT2A
-      name: IDR2
-      start: 460
-      end: 660
-
-    - protein: KMT2A
-      name: IDR3
-      start: 610
-      end: 810
 
 target:
   whole_proteins:
@@ -40,7 +26,9 @@ target:
     - name: NPM1c_CTERM
       sequence: KKSIRDTPAKNAQKSNQNGKDSKPSSTPRSKGQESFKKQEKTPKTPKGPSSVEDIKAKMQASIEKGGSLPKVEAKFINYVKNCFRMTDQEAIQDLCLAVEEVSLRK
   
-  #txt_file: KAT7_targets.txt
+  #txt_file: list_of_targets.txt
+
+
 
 ########################
 # GLOBAL CONFIGURATION #
