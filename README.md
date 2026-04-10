@@ -81,7 +81,15 @@ af3ppi generate --config config/run_config.yaml --mode complex
 
 Complex mode runs one analysis with all baits and targets combined into a single AF3 job.
 
+## Sequence input types
 
+The config file supports five sequence input styles:
+
+- `whole_proteins`: specify full-length protein names and load the complete protein sequences from the FASTA database.
+- `segments`: define protein segments with `protein`, `name`, `start`, and `end`. Only the requested subsequence is used.
+- `fasta`: provide custom sequences directly in the YAML file using `name` and `sequence` fields.
+- `txt_file`: load a list of sequence names from a text file, where each line contains a protein name.
+- `overlapping_windows`: split a protein sequence into multiple overlapping windows. This is useful for scanning large proteins or disordered regions in smaller chunks.
 
 Parse AF3 server outputs and write a summary TSV:
 
