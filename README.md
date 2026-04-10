@@ -5,7 +5,7 @@ Pipeline for detecting protein-protein interfaces using AlfaFold3
 
 ### Download from GitHub
 
-Download the repository from GitHub:
+Download the repository from GitHub.
 
 
 
@@ -66,17 +66,20 @@ The config file supports five sequence input styles:
 - `txt_file`: load a list of sequence names from a text file, where each line contains a protein name.
 - `overlapping_windows`: split a protein sequence into multiple overlapping windows. This is useful for scanning large proteins or disordered regions in smaller chunks.
 
+
 Parse AF3 server outputs and write a summary TSV:
 
 ```bash
 af3ppi parse-outputs --folder path/to/AF3_server_RNAPII_outputs --out-file results/AF3_server_RNAPII_outputs.txt
 ```
 
+
 Generate a single heatmap image from binary output JSONs:
 
 ```bash
 af3ppi heatmap --config config/run_config.yaml --folder path/to/AF3_server_RNAPII_outputs --out-file results/heatmap_RNAPII.png
 ```
+
 
 Generate multi-chain heatmaps from multi output JSONs:
 
