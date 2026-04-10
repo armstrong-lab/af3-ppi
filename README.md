@@ -70,21 +70,21 @@ The config file supports five sequence input styles:
 ## Parse AF3 server outputs and write a summary TSV:
 
 ```bash
-af3ppi parse-outputs --folder path/to/AF3_server_RNAPII_outputs --out-file results/AF3_server_RNAPII_outputs.txt
+af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt
 ```
 
 
 Generate a single heatmap image from binary output JSONs:
 
 ```bash
-af3ppi heatmap --config config/run_config.yaml --folder path/to/AF3_server_RNAPII_outputs --out-file results/heatmap_RNAPII.png
+af3ppi heatmap --config config/run_config.yaml --folder path/to/AF3_server_outputs --out-file results/heatmap_binary.png
 ```
 
 
 Generate multi-chain heatmaps from multi output JSONs:
 
 ```bash
-af3ppi heatmap-multi --config config/run_config.yaml --folder path/to/AF3_server_RNAPII_outputs --out-file results/heatmap_multi_RNAPII.png
+af3ppi heatmap-multi --config config/run_config.yaml --folder path/to/AF3_server_outputs --out-file results/heatmap_multi.png
 ```
 
 *Creates a single image file with all heatmaps arranged vertically (one on top of the other)*
