@@ -41,3 +41,9 @@ target:
       sequence: KKSIRDTPAKNAQKSNQNGKDSKPSSTPRSKGQESFKKQEKTPKTPKGPSSVEDIKAKMQASIEKGGSLPKVEAKFINYVKNCFRMTDQEAIQDLCLAVEEVSLRK
   
   #txt_file: KAT7_targets.txt
+
+  ########################
+# GLOBAL CONFIGURATION #
+########################
+
+fasta_database_file : UP000005640_9606.fasta
