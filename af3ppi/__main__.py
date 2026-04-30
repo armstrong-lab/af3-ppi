@@ -66,7 +66,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="contact_cutoff",
         type=contact_prob_cutoff,
         default=ACTIFPTM_CONTACT_PROB_CUTOFF,
-        help="Contact probability cutoff used for local actifpTM calculation. Defaults to 0.6.",
+        help="Contact probability cutoff used for local actifpTM calculation. Defaults to 0.7.",
     )
     parse_parser.add_argument(
         "--repo-root",
@@ -101,7 +101,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="contact_cutoff",
         type=contact_prob_cutoff,
         default=ACTIFPTM_CONTACT_PROB_CUTOFF,
-        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.6.",
+        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.7.",
     )
     heatmap_parser.add_argument(
         "--repo-root",
@@ -142,7 +142,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="contact_cutoff",
         type=contact_prob_cutoff,
         default=ACTIFPTM_CONTACT_PROB_CUTOFF,
-        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.6.",
+        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.7.",
     )
     heatmap_multi_parser.add_argument(
         "--repo-root",

@@ -73,7 +73,7 @@ The config file supports five sequence input styles:
 af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt
 ```
 
-The summary TSV includes `ipTM`, `minPAE`, and `actifpTM`. The `actifpTM` value is calculated locally from the matching AF3 full data JSON using `pae`, `contact_probs`, and `token_chain_ids`. Interface residues are selected from chain-pair contacts with `contact_probs >= 0.6` by default. Change this with `--contact-cutoff`. The TSV also reports contact support and interface mean pLDDT summaries so small or low-confidence interfaces can be flagged.
+The summary TSV includes `ipTM`, `minPAE`, and `actifpTM`. The `actifpTM` value is calculated locally from the matching AF3 full data JSON using `pae`, `contact_probs`, and `token_chain_ids`. Interface residues are selected from chain-pair contacts with `contact_probs >= 0.7` by default. Change this with `--contact-cutoff`. The TSV also reports contact support and interface mean pLDDT summaries so small or low-confidence interfaces can be flagged.
 
 ```bash
 af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt --contact-cutoff 0.7

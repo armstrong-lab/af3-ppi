@@ -335,7 +335,7 @@ def _get_symmetric_pair(matrix: Any, i: int, j: int) -> float:
     return float(max(matrix[i][j], matrix[j][i]))
 
 
-ACTIFPTM_CONTACT_PROB_CUTOFF = 0.6
+ACTIFPTM_CONTACT_PROB_CUTOFF = 0.7
 
 
 def validate_contact_prob_cutoff(contact_prob_cutoff: float) -> float:
