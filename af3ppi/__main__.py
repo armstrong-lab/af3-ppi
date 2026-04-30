@@ -2,11 +2,19 @@ import argparse
 from pathlib import Path
 
 from .af3_input import (
+    ACTIFPTM_CONTACT_PROB_CUTOFF,
     generate_af3_inputs,
     make_output_heatmap,
     make_output_heatmap_multi,
     read_AF3_server_outputs,
 )
+
+
+def contact_prob_cutoff(value: str) -> float:
+    cutoff = float(value)
+    if cutoff < 0 or cutoff > 1:
+        raise argparse.ArgumentTypeError("must be between 0 and 1")
+    return cutoff
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -54,6 +62,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to write the summary TSV file.",
     )
     parse_parser.add_argument(
+        "--contact-cutoff",
+        dest="contact_cutoff",
+        type=contact_prob_cutoff,
+        default=ACTIFPTM_CONTACT_PROB_CUTOFF,
+        help="Contact probability cutoff used for local actifpTM calculation. Defaults to 0.6.",
+    )
+    parse_parser.add_argument(
         "--repo-root",
         help="Optional repository root directory. Defaults to the current working directory.",
     )
@@ -74,6 +89,19 @@ def build_parser() -> argparse.ArgumentParser:
     heatmap_parser.add_argument(
         "--out-file",
         help="Optional path to save the heatmap image.",
+    )
+    heatmap_parser.add_argument(
+        "--metric",
+        default="iptm",
+        choices=["iptm", "min_pae", "minpae", "actifptm"],
+        help="Metric to plot in the heatmap. Defaults to iptm.",
+    )
+    heatmap_parser.add_argument(
+        "--contact-cutoff",
+        dest="contact_cutoff",
+        type=contact_prob_cutoff,
+        default=ACTIFPTM_CONTACT_PROB_CUTOFF,
+        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.6.",
     )
     heatmap_parser.add_argument(
         "--repo-root",
@@ -102,6 +130,19 @@ def build_parser() -> argparse.ArgumentParser:
     heatmap_multi_parser.add_argument(
         "--out-file",
         help="Optional path to save the combined multi heatmap image.",
+    )
+    heatmap_multi_parser.add_argument(
+        "--metric",
+        default="iptm",
+        choices=["iptm", "min_pae", "minpae", "actifptm"],
+        help="Metric to plot in the multi-chain heatmap. Defaults to iptm.",
+    )
+    heatmap_multi_parser.add_argument(
+        "--contact-cutoff",
+        dest="contact_cutoff",
+        type=contact_prob_cutoff,
+        default=ACTIFPTM_CONTACT_PROB_CUTOFF,
+        help="Contact probability cutoff used when --metric actifptm is calculated locally. Defaults to 0.6.",
     )
     heatmap_multi_parser.add_argument(
         "--repo-root",
@@ -137,6 +178,7 @@ def main() -> int:
             folder_name=args.folder,
             out_fname=args.out_file,
             root=root,
+            actifptm_contact_prob_cutoff=args.contact_cutoff,
         )
         print(f"Wrote summary TSV: {Path(output_path).resolve()}")
         return 0
@@ -153,6 +195,8 @@ def main() -> int:
             root=root,
             save_path=args.out_file,
             show=args.show,
+            metric=args.metric,
+            actifptm_contact_prob_cutoff=args.contact_cutoff,
         )
         print(f"Wrote heatmap: {Path(output_path).resolve()}")
         return 0
@@ -169,6 +213,8 @@ def main() -> int:
             root=root,
             save_path=getattr(args, "out_file", None),
             show=args.show,
+            metric=args.metric,
+            actifptm_contact_prob_cutoff=args.contact_cutoff,
         )
         print(f"Wrote combined heatmap: {Path(output_path).resolve()}")
         return 0

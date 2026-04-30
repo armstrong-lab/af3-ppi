@@ -73,11 +73,23 @@ The config file supports five sequence input styles:
 af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt
 ```
 
+The summary TSV includes `ipTM`, `minPAE`, and `actifpTM`. The `actifpTM` value is calculated locally from the matching AF3 full data JSON using `pae`, `contact_probs`, and `token_chain_ids`. Interface residues are selected from chain-pair contacts with `contact_probs >= 0.6` by default. Change this with `--contact-cutoff`. The TSV also reports contact support and interface mean pLDDT summaries so small or low-confidence interfaces can be flagged.
+
+```bash
+af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt --contact-cutoff 0.7
+```
+
 
 Generate a single heatmap image from binary output JSONs:
 
 ```bash
 af3ppi heatmap --config config/run_config.yaml --folder path/to/AF3_server_outputs --out-file results/heatmap_binary.png
+```
+
+Use `--metric` to choose the plotted value:
+
+```bash
+af3ppi heatmap --config config/run_config.yaml --folder path/to/AF3_server_outputs --metric actifptm --out-file results/heatmap_binary_actifptm.png
 ```
 
 
@@ -87,6 +99,6 @@ Generate multi-chain heatmaps from multi output JSONs:
 af3ppi heatmap-multi --config config/run_config.yaml --folder path/to/AF3_server_outputs --out-file results/heatmap_multi.png
 ```
 
+The `heatmap-multi` command also accepts `--metric iptm`, `--metric min_pae`, or `--metric actifptm`.
+
 *Creates a single image file with all heatmaps arranged vertically (one on top of the other)*
-
-
