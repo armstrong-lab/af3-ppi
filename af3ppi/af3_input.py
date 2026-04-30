@@ -335,6 +335,10 @@ def _get_symmetric_pair(matrix: Any, i: int, j: int) -> float:
     return float(max(matrix[i][j], matrix[j][i]))
 
 
+def _get_min_pair(matrix: Any, i: int, j: int) -> float:
+    return float(min(matrix[i][j], matrix[j][i]))
+
+
 ACTIFPTM_CONTACT_PROB_CUTOFF = 0.7
 
 
@@ -602,7 +606,7 @@ def get_metric_value(
             return _get_pairwise_dict_value(jdata["pairwise_iptm"], i, j)
         raise KeyError("Missing iptm, chain_pair_iptm, or pairwise_iptm in summary JSON")
     if metric == "min_pae":
-        return _get_symmetric_pair(jdata["chain_pair_pae_min"], i, j)
+        return _get_min_pair(jdata["chain_pair_pae_min"], i, j)
     if metric == "actifptm":
         for matrix_key in ("chain_pair_actifptm", "chain_pair_actifpTM", "pairwise_actifptm_matrix"):
             if matrix_key in jdata:
@@ -742,6 +746,102 @@ def read_AF3_server_outputs(
     ensure_parent_dir(output_path)
     outdata = pd.DataFrame(out_rows).set_index("run_name")
     outdata.to_csv(output_path, sep="\t")
+    return output_path
+
+
+def _target_metric_columns(
+    target_name: str,
+    jdata: Dict[str, Any],
+    summary_path: Path,
+    target_chain_index: int,
+    contact_prob_cutoff: float,
+) -> Dict[str, float | int]:
+    prefix = re.sub(r"[^A-Za-z0-9_.-]+", "_", target_name).strip("_")
+    actifptm_details = get_actifptm_support_metrics(
+        summary_path,
+        i=0,
+        j=target_chain_index,
+        contact_prob_cutoff=contact_prob_cutoff,
+    )
+    if "chain_pair_iptm" not in jdata:
+        raise KeyError(f"Missing chain_pair_iptm in multi summary JSON: {summary_path}")
+    return {
+        f"{prefix}_ipTM": _get_symmetric_pair(jdata["chain_pair_iptm"], 0, target_chain_index),
+        f"{prefix}_minPAE": get_metric_value(jdata, "min_pae", i=0, j=target_chain_index),
+        f"{prefix}_actifpTM": actifptm_details["actifptm"],
+        f"{prefix}_actifpTM_contacts": actifptm_details["contact_count"],
+        f"{prefix}_actifpTM_bait_residues": actifptm_details["chain_i_interface_residues"],
+        f"{prefix}_actifpTM_target_residues": actifptm_details["chain_j_interface_residues"],
+        f"{prefix}_actifpTM_interface_mean_pLDDT": actifptm_details["interface_mean_plddt"],
+        f"{prefix}_actifpTM_bait_mean_pLDDT": actifptm_details["chain_i_interface_mean_plddt"],
+        f"{prefix}_actifpTM_target_mean_pLDDT": actifptm_details["chain_j_interface_mean_plddt"],
+    }
+
+
+def read_AF3_server_outputs_multi(
+    prot_dict: Dict[str, str],
+    run_config: Dict[str, Any],
+    folder_name: str,
+    out_fname: str | Path,
+    root: str | Path | None = None,
+    actifptm_contact_prob_cutoff: float = ACTIFPTM_CONTACT_PROB_CUTOFF,
+) -> Path:
+    actifptm_contact_prob_cutoff = validate_contact_prob_cutoff(actifptm_contact_prob_cutoff)
+    pd = _ensure_pandas_dep()
+    bait_arr = get_config_sequences(prot_dict, "bait", run_config, root=root)
+    target_arr = get_config_sequences(prot_dict, "target", run_config, root=root)
+    target_names = [target["name"] for target in target_arr]
+    output_folder = Path(folder_name)
+    if not output_folder.is_absolute():
+        output_folder = project_root(root) / output_folder
+    if not output_folder.exists():
+        raise FileNotFoundError(f"AF3 server output folder not found: {output_folder}")
+
+    config_bait_names = {bait["name"].upper(): bait["name"] for bait in bait_arr}
+    out_rows: List[Dict[str, Any]] = []
+    found = False
+    written = False
+    for f in output_folder.rglob("*summary_confidences_0.json"):
+        re_obj = re.search(r"fold_\d+_(.+)_[^_]+_summary", f.stem)
+        if not re_obj:
+            continue
+        found = True
+        bait_name = re_obj.group(1)
+        config_bait_name = config_bait_names.get(bait_name.upper())
+        if config_bait_name is None:
+            continue
+        with f.open("r") as file:
+            jdata = json.load(file)
+        expected_size = len(target_names) + 1
+        if "chain_pair_pae_min" in jdata and len(jdata["chain_pair_pae_min"]) != expected_size:
+            raise ValueError(
+                f"Chain pair metric size mismatch for file {f}. Expected {expected_size} chains "
+                f"based on config (bait + {len(target_names)} targets), got {len(jdata['chain_pair_pae_min'])}."
+            )
+        row: Dict[str, Any] = {"run_name": config_bait_name}
+        for target_index, target_name in enumerate(target_names, start=1):
+            row.update(
+                _target_metric_columns(
+                    target_name,
+                    jdata,
+                    f,
+                    target_index,
+                    actifptm_contact_prob_cutoff,
+                )
+            )
+        out_rows.append(row)
+        written = True
+    if not found:
+        raise ValueError(f"No multi summary confidence JSON files found in {output_folder}")
+    if not written:
+        raise ValueError(f"No multi summary confidence JSON files matched config baits in {output_folder}")
+    bait_order = {bait["name"].upper(): index for index, bait in enumerate(bait_arr)}
+    out_rows.sort(key=lambda row: bait_order.get(str(row["run_name"]).upper(), len(bait_order)))
+    output_path = Path(out_fname)
+    if not output_path.is_absolute():
+        output_path = project_root(root) / output_path
+    ensure_parent_dir(output_path)
+    pd.DataFrame(out_rows).set_index("run_name").to_csv(output_path, sep="\t")
     return output_path
 
 

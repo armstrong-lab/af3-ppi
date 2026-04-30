@@ -7,6 +7,7 @@ from .af3_input import (
     make_output_heatmap,
     make_output_heatmap_multi,
     read_AF3_server_outputs,
+    read_AF3_server_outputs_multi,
 )
 
 
@@ -69,6 +70,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="Contact probability cutoff used for local actifpTM calculation. Defaults to 0.7.",
     )
     parse_parser.add_argument(
+        "--repo-root",
+        help="Optional repository root directory. Defaults to the current working directory.",
+    )
+
+    parse_multi_parser = subparsers.add_parser(
+        "parse-outputs-multi", help="Parse multi-chain AF3 output JSONs and write one TSV with one row per bait."
+    )
+    parse_multi_parser.add_argument(
+        "--config",
+        required=True,
+        help="Path to the run configuration YAML file used to define bait/target names.",
+    )
+    parse_multi_parser.add_argument(
+        "--folder",
+        required=True,
+        help="Path to the folder containing AF3 output JSONs.",
+    )
+    parse_multi_parser.add_argument(
+        "--out-file",
+        required=True,
+        help="Path to write the multi-chain summary TSV file.",
+    )
+    parse_multi_parser.add_argument(
+        "--contact-cutoff",
+        dest="contact_cutoff",
+        type=contact_prob_cutoff,
+        default=ACTIFPTM_CONTACT_PROB_CUTOFF,
+        help="Contact probability cutoff used for local actifpTM calculation. Defaults to 0.7.",
+    )
+    parse_multi_parser.add_argument(
         "--repo-root",
         help="Optional repository root directory. Defaults to the current working directory.",
     )
@@ -181,6 +212,22 @@ def main() -> int:
             actifptm_contact_prob_cutoff=args.contact_cutoff,
         )
         print(f"Wrote summary TSV: {Path(output_path).resolve()}")
+        return 0
+
+    if args.command == "parse-outputs-multi":
+        from .af3_input import parse_config, parse_fasta
+
+        run_config = parse_config(args.config, root=root)
+        prot_dict = parse_fasta(run_config, root=root)
+        output_path = read_AF3_server_outputs_multi(
+            prot_dict=prot_dict,
+            run_config=run_config,
+            folder_name=args.folder,
+            out_fname=args.out_file,
+            root=root,
+            actifptm_contact_prob_cutoff=args.contact_cutoff,
+        )
+        print(f"Wrote multi summary TSV: {Path(output_path).resolve()}")
         return 0
 
     if args.command == "heatmap":

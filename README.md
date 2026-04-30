@@ -79,6 +79,12 @@ The summary TSV includes `ipTM`, `minPAE`, and `actifpTM`. The `actifpTM` value 
 af3ppi parse-outputs --folder path/to/AF3_server_outputs --out-file results/AF3_server_binary_results.txt --contact-cutoff 0.7
 ```
 
+For multi-chain outputs, write one TSV with one row per bait and separate metric columns for each target:
+
+```bash
+af3ppi parse-outputs-multi --config config/run_config.yaml --folder path/to/AF3_server_outputs --out-file results/AF3_server_multi_results.txt
+```
+
 
 Generate a single heatmap image from binary output JSONs:
 
