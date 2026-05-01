@@ -122,55 +122,60 @@ def get_config_sequences(
     config_section = run_config[key]
     local_arr: List[Dict[str, str]] = []
 
-    if "segments" in config_section:
-        for seg in config_section["segments"]:
-            name = seg.get("name")
-            if not name:
-                raise ValueError("Segment entry missing 'name'")
-            sequence = _load_sequence_by_name(seg["protein"], prot_dict)
-            seg_seq = _extract_range(sequence, seg["start"], seg["end"])
-            local_arr.append({"name": name, "sequence": seg_seq})
+    supported_keys = {"segments", "whole_proteins", "txt_file", "fasta", "overlapping_windows"}
+    for section_key, section_value in config_section.items():
+        if section_key not in supported_keys:
+            continue
 
-    if "whole_proteins" in config_section:
-        for protein in config_section["whole_proteins"]:
-            name = protein.get("name")
-            if not name:
-                raise ValueError("Whole protein entry missing 'name'")
-            whole_seq = _load_sequence_by_name(name, prot_dict)
-            local_arr.append({"name": name, "sequence": whole_seq})
+        if section_key == "segments":
+            for seg in section_value:
+                name = seg.get("name")
+                if not name:
+                    raise ValueError("Segment entry missing 'name'")
+                sequence = _load_sequence_by_name(seg["protein"], prot_dict)
+                seg_seq = _extract_range(sequence, seg["start"], seg["end"])
+                local_arr.append({"name": name, "sequence": seg_seq})
 
-    if "txt_file" in config_section:
-        for txt in _read_txt_file_names(config_section["txt_file"], root=root):
-            local_arr.append({"name": txt, "sequence": _load_sequence_by_name(txt, prot_dict)})
+        if section_key == "whole_proteins":
+            for protein in section_value:
+                name = protein.get("name")
+                if not name:
+                    raise ValueError("Whole protein entry missing 'name'")
+                whole_seq = _load_sequence_by_name(name, prot_dict)
+                local_arr.append({"name": name, "sequence": whole_seq})
 
-    if "fasta" in config_section:
-        for fasta in config_section["fasta"]:
-            if "name" not in fasta or "sequence" not in fasta:
-                raise ValueError("FASTA entry must include 'name' and 'sequence'")
-            local_arr.append({"name": fasta["name"], "sequence": fasta["sequence"]})
+        if section_key == "txt_file":
+            for txt in _read_txt_file_names(section_value, root=root):
+                local_arr.append({"name": txt, "sequence": _load_sequence_by_name(txt, prot_dict)})
 
-    if "overlapping_windows" in config_section:
-        for window in config_section["overlapping_windows"]:
-            name = window.get("name")
-            if not name:
-                raise ValueError("Overlapping window entry missing 'name'")
-            main_seq = _load_sequence_by_name(window["protein"], prot_dict)
-            start = int(window["start"])
-            end = int(window["end"])
-            size = int(window["size"])
-            overlap = int(window["overlap"])
-            if size <= 0 or overlap < 0:
-                raise ValueError("Invalid window size/overlap in overlapping_windows")
-            if end < start:
-                raise ValueError("overlapping_windows end must be >= start")
-            lstart = start - 1
-            lend = lstart + size
-            while lend <= end:
-                local_arr.append({"name": f"{name}_{lstart+1}_{lend}", "sequence": main_seq[lstart:lend]})
-                lstart = lstart + size - overlap
+        if section_key == "fasta":
+            for fasta in section_value:
+                if "name" not in fasta or "sequence" not in fasta:
+                    raise ValueError("FASTA entry must include 'name' and 'sequence'")
+                local_arr.append({"name": fasta["name"], "sequence": fasta["sequence"]})
+
+        if section_key == "overlapping_windows":
+            for window in section_value:
+                name = window.get("name")
+                if not name:
+                    raise ValueError("Overlapping window entry missing 'name'")
+                main_seq = _load_sequence_by_name(window["protein"], prot_dict)
+                start = int(window["start"])
+                end = int(window["end"])
+                size = int(window["size"])
+                overlap = int(window["overlap"])
+                if size <= 0 or overlap < 0:
+                    raise ValueError("Invalid window size/overlap in overlapping_windows")
+                if end < start:
+                    raise ValueError("overlapping_windows end must be >= start")
+                lstart = start - 1
                 lend = lstart + size
-            if lstart < end and len(main_seq[lstart:end]) > 0:
-                local_arr.append({"name": f"{name}_{lstart+1}_{end}", "sequence": main_seq[lstart:end]})
+                while lend <= end:
+                    local_arr.append({"name": f"{name}_{lstart+1}_{lend}", "sequence": main_seq[lstart:lend]})
+                    lstart = lstart + size - overlap
+                    lend = lstart + size
+                if lstart < end and len(main_seq[lstart:end]) > 0:
+                    local_arr.append({"name": f"{name}_{lstart+1}_{end}", "sequence": main_seq[lstart:end]})
 
     if not local_arr:
         raise ValueError(f"No sequences generated for section '{key}' in config")
@@ -688,6 +693,53 @@ def _heatmap_kwargs(metric: str) -> Dict[str, Any]:
     return {"vmin": 0.2, "vmax": 1}
 
 
+def _multi_job_name_from_summary_path(summary_path: Path) -> str | None:
+    re_obj = re.fullmatch(r"fold_\d+_(.+)_summary_confidences(?:_\d+)?", summary_path.stem)
+    if re_obj:
+        return re_obj.group(1)
+    return None
+
+
+def _multi_bait_name_from_job_name(job_name: str, config_bait_names: Dict[str, str]) -> str | None:
+    unnumbered_job_name = re.sub(r"^\d+_", "", job_name)
+    for bait_key in sorted(config_bait_names, key=len, reverse=True):
+        bait_name = config_bait_names[bait_key]
+        if unnumbered_job_name.upper() == bait_key or unnumbered_job_name.upper().startswith(f"{bait_key}_"):
+            return bait_name
+    return None
+
+
+def _name_key(name: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "", name).upper()
+
+
+def _multi_target_names_for_job(job_name: str, bait_name: str, target_names: List[str]) -> List[str]:
+    unnumbered_job_name = re.sub(r"^\d+_", "", job_name)
+    bait_prefix = f"{bait_name}_"
+    if not unnumbered_job_name.upper().startswith(bait_prefix.upper()):
+        return target_names
+
+    suffix_key = _name_key(unnumbered_job_name[len(bait_prefix):])
+    ordered_targets: List[str] = []
+    unused_targets = list(target_names)
+    while suffix_key and unused_targets:
+        matches = [
+            target
+            for target in unused_targets
+            if suffix_key.startswith(_name_key(target))
+        ]
+        if not matches:
+            break
+        target = max(matches, key=lambda value: len(_name_key(value)))
+        ordered_targets.append(target)
+        unused_targets.remove(target)
+        suffix_key = suffix_key[len(_name_key(target)):]
+
+    if len(ordered_targets) == len(target_names) and not suffix_key:
+        return ordered_targets
+    return target_names
+
+
 def read_AF3_server_outputs(
     folder_name: str,
     out_fname: str,
@@ -802,12 +854,11 @@ def read_AF3_server_outputs_multi(
     found = False
     written = False
     for f in output_folder.rglob("*summary_confidences_0.json"):
-        re_obj = re.search(r"fold_\d+_(.+)_[^_]+_summary", f.stem)
-        if not re_obj:
+        job_name = _multi_job_name_from_summary_path(f)
+        if job_name is None:
             continue
         found = True
-        bait_name = re_obj.group(1)
-        config_bait_name = config_bait_names.get(bait_name.upper())
+        config_bait_name = _multi_bait_name_from_job_name(job_name, config_bait_names)
         if config_bait_name is None:
             continue
         with f.open("r") as file:
@@ -818,8 +869,9 @@ def read_AF3_server_outputs_multi(
                 f"Chain pair metric size mismatch for file {f}. Expected {expected_size} chains "
                 f"based on config (bait + {len(target_names)} targets), got {len(jdata['chain_pair_pae_min'])}."
             )
+        file_target_names = _multi_target_names_for_job(job_name, config_bait_name, target_names)
         row: Dict[str, Any] = {"run_name": config_bait_name}
-        for target_index, target_name in enumerate(target_names, start=1):
+        for target_index, target_name in enumerate(file_target_names, start=1):
             row.update(
                 _target_metric_columns(
                     target_name,
@@ -930,15 +982,20 @@ def make_output_heatmap_multi(
         raise FileNotFoundError(f"AF3 server output folder not found: {output_folder}")
     df_dict: Dict[str, pd.DataFrame] = {}
     found_bait_names: set[str] = set()
+    config_bait_names = {bait["name"].upper(): bait["name"] for bait in bait_arr}
     found = False
     for f in output_folder.rglob("*summary_confidences_0.json"):
-        re_obj = re.search(r"fold_\d+_(.+)_[^_]+_summary", f.stem)
-        if not re_obj:
+        job_name = _multi_job_name_from_summary_path(f)
+        if job_name is None:
             continue
         found = True
-        bait_name = re_obj.group(1).upper()
+        config_bait_name = _multi_bait_name_from_job_name(job_name, config_bait_names)
+        if config_bait_name is None:
+            continue
+        bait_name = config_bait_name.upper()
         found_bait_names.add(bait_name)
-        mat_arr = [bait_name] + target_name_arr
+        file_target_names = _multi_target_names_for_job(job_name, config_bait_name, target_name_arr)
+        mat_arr = [bait_name] + file_target_names
         with f.open("r") as file:
             jdata = json.load(file)
         lmat = get_metric_matrix(
@@ -958,10 +1015,10 @@ def make_output_heatmap_multi(
         raise ValueError(f"No multi heatmap JSON files found in {output_folder}")
     
     # Validate that config baits match found baits
-    config_bait_names = [bait["name"].upper() for bait in bait_arr]
-    if not any(cb in found_bait_names for cb in config_bait_names):
+    config_bait_name_arr = [bait["name"].upper() for bait in bait_arr]
+    if not any(cb in found_bait_names for cb in config_bait_name_arr):
         raise ValueError(
-            f"Config baits {config_bait_names} do not match any baits found in results {list(found_bait_names)}. Please ensure the config matches the results folder."
+            f"Config baits {config_bait_name_arr} do not match any baits found in results {list(found_bait_names)}. Please ensure the config matches the results folder."
         )
     
     # Filter baits that have data
